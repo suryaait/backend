@@ -1,1 +1,65 @@
-First commit
+# 🛍️ NestJS Product API
+
+This is a **RESTful Product API** built with [NestJS](https://nestjs.com/), **MongoDB**, and **Multer** for image uploads. It supports:
+
+- 📝 Product creation
+- 🖼️ Single and multiple image uploads
+- 🔎 Filtering by name, stock, and creation date
+- 🔒 JWT-based route protection
+- ✅ Object-Oriented Architecture
+
+## 🚀 Features
+
+### ✅ Product Endpoints
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/products/upload-single` | Create product with one image |
+| `POST` | `/products/upload-multiple` | Create product with multiple images |
+| `GET`  | `/products` | Get all products |
+| `GET`  | `/products/:id` | Get single product |
+| `GET`  | `/products/filter` | Filter products |
+| `DELETE` | `/products/:id` | Delete product |
+
+### 🔐 Protected by JWT
+All routes are secured using `JwtAuthGuard`.
+
+---
+
+## 🛠️ Installation
+
+git clone https://github.com/yourusername/nestjs-product-api.git
+cd nestjs-product-api
+npm install
+⚙️ Environment Setup
+Create a .env file:
+
+env
+
+MONGO_URI=mongodb://localhost:27017/products-db
+JWT_SECRET=your_jwt_secret
+PORT=3000
+
+# development
+npm run start:dev
+
+# production
+npm run start:prod
+📤 Image Uploads
+Uploaded images are stored in the uploads/ directory.
+
+You can serve them statically by enabling:
+app.useStaticAssets(join(__dirname, '..', 'uploads'));
+
+✨ Filtering Example
+GET /products/filter?name=shirt&createdFrom=2024-01-01&createdTo=2024-12-31&inStock=true
+
+📦 Tech Stack
+NestJS (MVC + Modules)
+Mongoose (MongoDB ODM)
+Multer (File Uploads)
+TypeScript
+JWT Authentication
+
+🧪 Testing (Optional)
+# run unit tests
+npm run test
