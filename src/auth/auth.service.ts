@@ -6,32 +6,29 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
+import { RegisterDto, LoginDto } from './dto/auth.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private usersService: UsersService,
-    private jwtService: JwtService,
+    private readonly usersService: UsersService,
+    private readonly jwtService: JwtService,
   ) {}
 
-  async register(email: string, password: string) {
-    const existingUser = await this.usersService.findByEmail(email);
+  async register(dto: RegisterDto) {
+    const existingUser = await this.usersService.findByEmail(dto.email);
     if (existingUser) {
-      throw new BadRequestException('Email already found');
+      throw new BadRequestException('Email already exists');
     }
 
-    if (password.length < 8) {
-      throw new BadRequestException(
-        'Password must be at least 8 characters long',
-      );
-    }
+    dto.isValid();
 
-    return this.usersService.create(email, password);
+    return this.usersService.create(dto.email, dto.password);
   }
 
-  async login(email: string, password: string) {
-    const user = await this.usersService.findByEmail(email);
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+  async login(dto: LoginDto) {
+    const user = await this.usersService.findByEmail(dto.email);
+    if (!user || !(await bcrypt.compare(dto.password, user.password))) {
       throw new UnauthorizedException('Invalid credentials');
     }
 

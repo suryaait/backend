@@ -10,8 +10,12 @@ export class ProductsService {
     @InjectModel(Product.name) private productModel: Model<Product>,
   ) {}
 
-  async create(dto: CreateProductDto, imageUrl?: string): Promise<Product> {
-    const newProduct = new this.productModel({ ...dto, imageUrl });
+  async create(
+    dto: CreateProductDto,
+    imageUrl?: string,
+    imageUrls?: string[],
+  ): Promise<Product> {
+    const newProduct = new this.productModel({ ...dto, imageUrl, imageUrls });
     return newProduct.save();
   }
 
@@ -23,18 +27,12 @@ export class ProductsService {
     return this.productModel.findById(id).exec();
   }
 
-  async update(
-    id: string,
-    dto: Partial<CreateProductDto>,
-    imageUrl?: string,
-  ): Promise<Product | null> {
-    return this.productModel
-      .findByIdAndUpdate(id, { ...dto, imageUrl }, { new: true })
-      .exec();
-  }
-
   async remove(id: string): Promise<{ deleted: boolean }> {
     const result = await this.productModel.findByIdAndDelete(id).exec();
     return { deleted: !!result };
+  }
+
+  async filter(filters: any): Promise<Product[]> {
+    return this.productModel.find(filters).exec();
   }
 }
