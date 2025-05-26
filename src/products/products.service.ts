@@ -16,7 +16,13 @@ export class ProductsService {
     imageUrl?: string,
     imageUrls?: string[],
   ): Promise<Product> {
-    const newProduct = new this.productModel({ ...dto, imageUrl, imageUrls });
+    const newProduct = new this.productModel({
+      ...dto,
+      stock: dto.stock ?? 0,
+      imageUrl,
+      imageUrls,
+      createdAt: dto.createdAt ? new Date(dto.createdAt) : new Date(),
+    });
     return newProduct.save();
   }
 
@@ -38,6 +44,8 @@ export class ProductsService {
       product.imageUrls = imageUrls;
     }
 
+    product.stock = dto.stock ?? 0;
+
     Object.assign(product, dto);
 
     return await product.save();
@@ -48,7 +56,19 @@ export class ProductsService {
     return { deleted: !!result };
   }
 
-  async filter(filters: any): Promise<Product[]> {
-    return this.productModel.find(filters).exec();
+  async filter(
+    filters: any,
+    sortBy?: string,
+    sortOrder: 'asc' | 'desc' = 'asc',
+  ): Promise<Product[]> {
+    let query = this.productModel.find(filters);
+
+    if (sortBy) {
+      const sort: Record<string, 1 | -1> = {};
+      sort[sortBy] = sortOrder === 'desc' ? -1 : 1;
+      query = query.sort(sort);
+    }
+
+    return query.exec();
   }
 }

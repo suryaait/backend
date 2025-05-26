@@ -94,6 +94,8 @@ export class ProductsController {
     @Query('createdFrom') createdFrom?: string,
     @Query('createdTo') createdTo?: string,
     @Query('inStock') inStock?: string,
+    @Query('sortBy') sortBy?: string,
+    @Query('sortOrder') sortOrder?: 'asc' | 'desc',
   ) {
     const filters: Record<string, any> = {};
 
@@ -115,11 +117,7 @@ export class ProductsController {
       filters.stock = inStock === 'true' ? { $gt: 0 } : { $lte: 0 };
     }
 
-    const results = await this.productsService.filter(filters);
-    return {
-      message: 'Filtered products',
-      data: results,
-    };
+    return this.productsService.filter(filters, sortBy, sortOrder);
   }
 
   @UseGuards(JwtAuthGuard)
