@@ -14,6 +14,9 @@ export class Product extends Document {
 
   @Prop()
   imageUrl?: string;
+
+  @Prop({ type: [String], default: [] })
+  imageUrls?: string[];
 }
 
 export const ProductSchema = SchemaFactory.createForClass(Product);

@@ -1,17 +1,22 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Product } from './schema/product.schema';
 import { CreateProductDto } from './dto/create-product.dto';
+import { UpdateProductDto } from './dto/update-product.dto';
 
 @Injectable()
 export class ProductsService {
   constructor(
-    @InjectModel(Product.name) private productModel: Model<Product>,
+    @InjectModel(Product.name) private readonly productModel: Model<Product>,
   ) {}
 
-  async create(dto: CreateProductDto, imageUrl?: string): Promise<Product> {
-    const newProduct = new this.productModel({ ...dto, imageUrl });
+  async create(
+    dto: CreateProductDto,
+    imageUrl?: string,
+    imageUrls?: string[],
+  ): Promise<Product> {
+    const newProduct = new this.productModel({ ...dto, imageUrl, imageUrls });
     return newProduct.save();
   }
 
@@ -23,18 +28,27 @@ export class ProductsService {
     return this.productModel.findById(id).exec();
   }
 
-  async update(
-    id: string,
-    dto: Partial<CreateProductDto>,
-    imageUrl?: string,
-  ): Promise<Product | null> {
-    return this.productModel
-      .findByIdAndUpdate(id, { ...dto, imageUrl }, { new: true })
-      .exec();
+  async update(id: string, dto: UpdateProductDto, imageUrls?: string[]) {
+    const product = await this.productModel.findById(id);
+    if (!product) {
+      throw new NotFoundException('Product not found');
+    }
+
+    if (imageUrls && imageUrls.length) {
+      product.imageUrls = imageUrls;
+    }
+
+    Object.assign(product, dto);
+
+    return await product.save();
   }
 
   async remove(id: string): Promise<{ deleted: boolean }> {
     const result = await this.productModel.findByIdAndDelete(id).exec();
     return { deleted: !!result };
+  }
+
+  async filter(filters: any): Promise<Product[]> {
+    return this.productModel.find(filters).exec();
   }
 }
